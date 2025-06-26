@@ -1,0 +1,14 @@
+# Testing the Partition Function Calculation
+
+## Overview
+This directory contains tests for verifying the correct operation of the partition function calculation code which will be executed when calling `make`.
+
+## Test files
+The tests receive hardcoded interactions stored in `test/interactionsGaussian` and the corresponding expected partition functions results under `test/expectedResults`. Additonally, one test checks whether the couplings set by error probabilities in the truncated Gaussian noise model are calculated correctly.
+
+## Running Tests
+Run `make` and test will be executed after building the binaries which includes:
+1. Run the isingZToTxt and isingGeneratorRandomBond binaries for test parameters
+2. Compare the output to expected results
+3. Report if there are differences
+4. Clean the run results

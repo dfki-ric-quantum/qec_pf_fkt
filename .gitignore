@@ -1,0 +1,7 @@
+*.o
+*:Zone.Identifier
+*checkpoint.ipynb
+
+results*
+interactions*
+bin/
