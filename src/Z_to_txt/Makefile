@@ -1,25 +1,29 @@
-SHELL    =     /bin/bash
-CFLAGS   =     -m64 -O3 -Wall -W -pedantic -Wno-deprecated
-CXXFLAGS =     -m64 -O3 -Wall -W -pedantic
-CXX      =     g++
-CCC      =     $(CXX)
-CCFLAGS  =     $(CXXFLAGS)
-LIBS	 =     -lgslcblas -lgsl -lgmp -lgmpxx
-PROGNAME =     ../../bin/isingZToTxt
+SHELL      = /bin/bash
+CXX        = g++
+CXXFLAGS   = -m64 -O3 -Wall -W -pedantic
+LIBS       = -lgslcblas -lgsl -lgmp -lgmpxx
 
+BUILD_DIR  = ../../build/Z_to_txt
+PROGNAME   = $(BUILD_DIR)/isingZToTxt
 
-OBJECTS  =     main.o FINDmatrix.o Sample.o exp_log.o
+SRCS       = main.cc FINDmatrix.cc Sample.cc exp_log.cc
+OBJS       = $(SRCS:%.cc=$(BUILD_DIR)/%.o)
 
-all:	$(OBJECTS) executable
+all: $(PROGNAME)
+
+# Create build directory if needed
+$(BUILD_DIR):
+	@mkdir -p $@
+
+# Build the binary inside build dir
+$(PROGNAME): $(BUILD_DIR) $(OBJS)
+	$(CXX) $(CXXFLAGS) -o $@ $(OBJS) $(LIBS)
+
+# Compile source files to object files inside build dir
+$(BUILD_DIR)/%.o: %.cc | $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(OBJECTS) $(PROGNAME)
-tidy:
-	rm -f $(OBJECTS)
+	@rm -f $(BUILD_DIR)/*.o $(PROGNAME)
 
-main.o:		FINDmatrix.h Sample.h exp_log.h dataType.h
-FINDmatrix.o:	Sample.h exp_log.h dataType.h
-Sample.o:	exp_log.h dataType.h
-exp_log.o:	dataType.h
-executable:
-	$(CXX) $(CXXFLAGS) -o $(PROGNAME) $(OBJECTS) $(LIBS)
+.PHONY: all clean

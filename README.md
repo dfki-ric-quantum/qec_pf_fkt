@@ -1,23 +1,11 @@
 # Partition function calculation for logical failure estimation of toric code in [1]
-This repository contains a modified version of `isingZ` which was originally developed by Creighton K. Thomas (creightonthomas@gmail.com) and A. Alan Middleton (aam@syr.edu). The modifications of this repository aim at generating large sample sets of partition function estimates for a uniform disorder distribution and a truncated Gaussian disorder model.
+This repository contains a modified version of [`isingZ`](https://github.com/a-alan-middleton/IsingPartitionFn) which was originally developed by Creighton K. Thomas (creightonthomas@gmail.com) and A. Alan Middleton (aam@syr.edu). The modifications of this repository aim at generating large sample sets of partition function estimates for a uniform disorder distribution and a truncated Gaussian disorder model.
 The finite temperature and Ising couplings are chosen to fit the statistical mechanics mapping of stabilizer codes to relate the partition functions to logical error curves as explained in detail in [1].
 
-## Notes on original authors and copyright
+## Copyright
 ```text
 // COPYRIGHT NOTICE
-// This repository is a modifed version of isingZ, a program to compute partition
-//     functions in 2D Ising models
-//     for general bond weights and periodic boundary conditions.
-// Copyright 2012 by Creighton K. Thomas (creightonthomas@gmail.com),
-//                   A. Alan Middleton (aam@syr.edu)
-// The development of this software was supported in part by the National Science
-// Foundation under grant DMR-1006731.
-//
-// We have edited the original code by editing the workflow to output txt files for large scale
-// experiments, modified the interaction generation and edited the temperature definition in terms of
-// the Nishimori temperature.
-//
-// The program isingZ is free software; you can redistribute it and/or modify
+// This FKT implementation is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 3 of the License, or
 // (at your option) any later version.
@@ -35,7 +23,7 @@ The finite temperature and Ising couplings are chosen to fit the statistical mec
 //
 ```
 
-## Notes on Authors of Modified Version
+## Notes on Authors
 This repository was created by the authors of [1], Leon Wichette, Hans Hohenfeld, Elie Mounzer and Linnea Grans-Samuelsson, to utilize `isingZ` for the simulation of partition function decoding on the toric code.
 
 Our changes include:
@@ -46,25 +34,6 @@ Our changes include:
 - **Packing of results**: A script called `combine_to_hdf5.py` was added to store results in a single file which acts as input for the post processing pipeline.
 
 For scientific or reproducibility inquiries, please refer to the arXiv paper above or contact the authors listed therein.
-
-
-## Short directions for compilation and verification of compile
-If you have all the libraries available, which might well be the case, simply
-  enter 'make'. This will compile codes and place them in the bin directory.
-  It will also run short tests.
-  If the tests fails, don't worry, yet: the check is for the full precision of the
-  result and it is conceivable that different versions of gmp will give very slight
-  differences in the last few digits of the long decimal outputs.
-
-Necessary libraries for ising Z include gmp, gmpxx (GNU multiprecision library)..
-The disorder realization generator needs gsl (GNU scientific library).
-  You can modify the Makefile in src/Z/ and src/generator/ if you need to
-  clarify where those libraries sit. (For example, on one of
-  the authors' computers, where gmp and gsl are installed in bizarre places,
-  the additions to the makefile include:
-    INC		= -I/sw/include/gsl -I/sw/include/
-    LIBS	= -lgmpxx.4 -lgmp.3 -L/usr/local/lib -L/sw/lib/x86_64/ -lgsl
-  )
 
 ## Brief description of input format and usage
 ```text
@@ -93,17 +62,42 @@ Conventions for input format for Ising samples:
       S(2)
 ```
 
-## Usage instructions
+## Quick Setup and Dependencies
 
-The workflow consists of two steps:
-1. Generate Ising interactions using `generator_random_bond`
+To successfully build and run this project, ensure your environment has access to:
+- `g++` compiler with support for **C++17** (e.g., version 7 or newer)
+- GNU Scientific Library (GSL)
+- GNU Multiple Precision Arithmetic Library (GMP)
+- GNU Make
+
+You can install necessary dependencies by running:
+```
+sudo ./scripts/install-deps.sh
+```
+
+Activate the created virtual environment:
+```
+source .venv/bin/activate
+```
+
+Build the binaries for the partition function calculation by running from the project root:
+```
+make
+```
+
+The build process runs additionally some simple tests to verify proper building.
+
+## Usage Instructions
+
+The workflow consists of three steps:
+1. Generate Ising interactions using `isingGeneratorRandomBond`
 2. Calculate partition functions using `isingZToTxt`
 3. Pack results in HDF5 format using `combine_to_hdf5.py`
 
 ### Step 1: Generate Ising Interactions
 
 ```bash
-./bin/generator_random_bond Lx Ly seed probability output_directory [std_deviation]
+./build/generator_random_bond/isingGeneratorRandomBond Lx Ly seed probability output_directory [std_deviation]
 ```
 
 Parameters:
@@ -115,7 +109,7 @@ Parameters:
 
 Example:
 ```bash
-./bin/generator_random_bond 5 5 42 0.1 ./data
+./build/generator_random_bond/isingGeneratorRandomBond 5 5 42 0.1 ./data
 ```
 
 This generates a 5×5 lattice with probability 0.1 of flipping a bond and saves it to:
@@ -123,13 +117,13 @@ This generates a 5×5 lattice with probability 0.1 of flipping a bond and saves 
 
 With truncated Gaussian distributed coupling flipping probability with mean probability 0.1 and standard deviation 0.05:
 ```bash
-./bin/generator_random_bond 5 5 42 0.1 ./data 0.05
+./build/generator_random_bond/isingGeneratorRandomBond 5 5 42 0.1 ./data 0.05
 ```
 
 ### Step 2: Calculate Partition Functions
 
 ```bash
-./bin/isingZToTxt precision Lx Ly seed probability temperature output_directory [std_deviation]
+./build/Z_to_txt/isingZToTxt precision Lx Ly seed probability temperature output_directory [std_deviation]
 ```
 
 Parameters:
@@ -143,7 +137,7 @@ Parameters:
 
 Example:
 ```bash
-./bin/isingZToTxt 4096 5 5 42 0.1 1.0 ./data
+./build/Z_to_txt/isingZToTxt 4096 5 5 42 0.1 1.0 ./data
 ```
 
 This reads the interaction file and outputs the partition functions to:
@@ -151,7 +145,7 @@ This reads the interaction file and outputs the partition functions to:
 
 With Gaussian noise:
 ```bash
-./bin/isingZToTxt 4096 5 5 42 0.1 1.0 ./data 0.05
+./build/Z_to_txt/isingZToTxt 4096 5 5 42 0.1 1.0 ./data 0.05
 ```
 
 The output text file contains four tab-separated partition function values that represent four different boundary conditions of the spin lattice:
@@ -166,7 +160,7 @@ The output text file contains four tab-separated partition function values that 
 To handle the results easier it may be useful for you to pack the generated results in a structured way into a HDF5 file. THis can be achieved by calling:
 
 ```bash
-python combine_to_hdf5.py results_dir output_file_name
+python scripts/combine_to_hdf5.py results_dir output_file_name
 ```
 Parameters:
 - `results_dir`: The directory the results directory was created in (same directory the algorithm scripts were executed with)
@@ -174,7 +168,7 @@ Parameters:
 
 Example:
 ```bash
-python combine_to_hdf5.py ./data results.h5
+python scripts/combine_to_hdf5.py ./data results.h5
 ```
 This reads the results from `./data/resultsGaussian` and stores the content in `results.h5`.
 

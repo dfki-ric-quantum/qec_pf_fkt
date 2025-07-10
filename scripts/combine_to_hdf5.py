@@ -1,7 +1,9 @@
 import os
 import h5py
+import sys
 
 def collect_txt_to_hdf5(root_dir, output_hdf5_path):
+    count = 0
     with h5py.File(output_hdf5_path, 'w') as h5file:
         for dirpath, _, filenames in os.walk(root_dir):
             for filename in filenames:
@@ -32,6 +34,8 @@ def collect_txt_to_hdf5(root_dir, output_hdf5_path):
                     dt = h5py.string_dtype(encoding='utf-8')
                     group = h5file.require_group(group_path)
                     group.create_dataset(dataset_name, data=values, dtype=dt)
+                    count += 1
+    return count
 
 if __name__ == "__main__":
     import argparse
@@ -41,4 +45,21 @@ if __name__ == "__main__":
     parser.add_argument("output_hdf5", help="Output HDF5 filename")
     args = parser.parse_args()
 
-    collect_txt_to_hdf5(args.result_dir, args.output_hdf5)
+    if not os.path.isdir(args.result_dir):
+        sys.stderr.write(f"Error: result directory '{args.result_dir}' does not exist or is not a directory.\n")
+        sys.exit(1)
+
+    combined_count = collect_txt_to_hdf5(args.result_dir, args.output_hdf5)
+
+    if combined_count == 0:
+        sys.stderr.write(
+            "Warning: No Z.txt files were found. \n"
+        )
+        try:
+            os.remove(args.output_hdf5)
+            sys.stderr.write(f"Removed empty HDF5 file: {args.output_hdf5}\n")
+        except OSError:
+            pass
+        sys.exit(2)
+
+    print(f"Combined {combined_count} result files into HDF5 file: {args.output_hdf5}")

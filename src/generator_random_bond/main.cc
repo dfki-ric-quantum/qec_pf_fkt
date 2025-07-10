@@ -34,6 +34,11 @@ int main(int argc, char *argv[]) {
     }
   }
 
+  std::cout << "Generating interactions for:\n";
+  std::cout << "   dim x = " << Lx << ", dim y = " << Ly << " , error prob = " << prob;
+  if (useGaussian) std::cout << ", noise stddev = " << stddev;
+  std::cout << "\n";
+
   gsl_rng *rng;
   rng = gsl_rng_alloc(gsl_rng_mt19937);
   gsl_rng_set(rng, seed);
@@ -75,5 +80,7 @@ int main(int argc, char *argv[]) {
 
   outFile.close();
   gsl_rng_free(rng);
+
+  std::cout << "Interaction lattice successfully written to: " << outputDir + "/interaction_lattice.txt" << "\n";
   return 0;
 }

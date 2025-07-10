@@ -144,4 +144,6 @@ int main(int argc, char* argv[])
   std::string outputFile = outputDir + "/Z.txt";
 
   findPartition(S, outputFile, prec);
+  std::cout << "Z results written to: " << outputDir << std::endl;
+  return 0;
 }

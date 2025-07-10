@@ -1,23 +1,29 @@
-SHELL    =     /bin/bash
-CFLAGS   =     -O3 -Wall -W -pedantic -Wno-deprecated
-CXXFLAGS =     -O3 -Wall -W -pedantic
-CXX      =     g++
-CCC      =     $(CXX)
-CCFLAGS  =     $(CXXFLAGS)
-LIBS	 =     -lgslcblas -lgsl
-PROGNAME =     ../../bin/isingGeneratorRandomBond
+SHELL     = /bin/bash
+CXX       = g++
+CXXFLAGS  = -O3 -Wall -W -pedantic
+LIBS      = -lgslcblas -lgsl
 
+BUILD_DIR = ../../build/generator_random_bond
+PROGNAME  = $(BUILD_DIR)/isingGeneratorRandomBond
 
-OBJECTS  =     main.o
+SRCS      = main.cc
+OBJS      = $(SRCS:%.cc=$(BUILD_DIR)/%.o)
 
-all:	$(OBJECTS) executable
+all: $(PROGNAME)
+
+# Ensure build directory exists
+$(BUILD_DIR):
+	mkdir -p $@
+
+# Compile object files in build dir
+$(BUILD_DIR)/%.o: %.cc | $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Link final binary into build dir
+$(PROGNAME): $(OBJS)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LIBS)
 
 clean:
-	rm -f $(OBJECTS) $(PROGNAME)
-tidy:
-	rm -f $(OBJECTS)
+	@rm -f $(BUILD_DIR)/*.o $(PROGNAME)
 
-main.o:
-
-executable:
-	$(CXX) $(CXXFLAGS) -o $(PROGNAME) $(OBJECTS) $(LIBS)
+.PHONY: all clean

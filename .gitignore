@@ -4,4 +4,5 @@
 
 results*
 interactions*
-bin/
+build/
+.venv/

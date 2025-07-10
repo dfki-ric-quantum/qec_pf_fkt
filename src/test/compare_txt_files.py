@@ -26,7 +26,6 @@ def compare_files(file1, file2, tol_str="1e-9"):
             print(f"  File 2: {v2}")
             print(f"  |Difference| = {diff} > Tolerance = {tol}")
             return 1
-    print("Files match within tolerance.")
     return 0
 
 if __name__ == "__main__":
