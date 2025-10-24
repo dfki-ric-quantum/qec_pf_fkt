@@ -6,3 +6,5 @@ results*
 interactions*
 build/
 .venv/
+
+!src/test/interactionsGaussian/
